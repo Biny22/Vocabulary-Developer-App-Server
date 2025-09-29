@@ -1,1 +1,1 @@
-from .word import WordBase, WordRequest
+from .word import Word, WordRequest

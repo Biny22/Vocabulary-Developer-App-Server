@@ -1,16 +1,20 @@
 from pydantic import BaseModel
-from typing import Dict, Optional
+from typing import Optional, List
+
+from .word_level import WordLevel
+from .meaning import Meaning
+from .example import Example
 
 
-class WordBase(BaseModel):
+class Word(BaseModel):
     spelling: str
-    type: str
-    meanings: Dict[str, str]
-    examples: Dict[str, str]
+    level: WordLevel
+    meanings: List[Meaning]
+    examples: List[Example]
 
 
 class WordRequest(BaseModel):
-    word: WordBase
+    word: Word
     audio_toggle: bool = False
     resolution: str
 
