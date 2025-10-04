@@ -1,50 +1,78 @@
+import asyncio
 from fastapi import APIRouter, Depends, Form
 from fastapi.responses import StreamingResponse
 from starlette.responses import JSONResponse
-
 # from dependencies import verify_access_token
 
-from services.image_generate_service import generate_front_card
+from services.image_generate_service import generate_image
 from services.audio_generate_service import generate_audio
 from services.zip_generate_service import create_zip
+from core.executor import executor
 from schemas import Word, WordRequest
 
+
+# router = APIRouter()
+
+
+# @router.post("/generate/media")
+# def generate_media(
+#     req: WordRequest
+#     # user: dict = Depends(verify_access_token)
+# ):
+#     try:
+#         word = req.word
+#         audio_toggle = req.audio_toggle
+#         resolution = req.resolution
+#
+#         # 이미지 두 장 생성(PIL)
+#         image_files = generate_image(word, resolution)
+#         # 오디오 파일 생성(TTS)
+#         audio_file = generate_audio(word) if audio_toggle else None
+#         zip_file = create_zip(word, image_files, audio_file)
+#
+#         return StreamingResponse(
+#             iter([zip_file.getvalue()]),
+#             media_type="application/zip",
+#             headers={"Content-Disposition": f"attachment; filename={word.spelling}.zip"}
+#         )
+#
+#     except Exception as e:
+#         return JSONResponse(
+#             status_code=500,
+#             content={"error": str(e)}
+#         )
 
 router = APIRouter()
 
 
 @router.post("/generate/media")
-def generate_media(
-    req: WordRequest
-    # user: dict = Depends(verify_access_token)
-):
+async def generate_media(req: WordRequest):
     try:
         word = req.word
-        print(f'spelling: {word.spelling}')
-        print(f'level: {word.level}')
-        print(f'meanings: {word.meanings}')
-        print(f'examples: {word.examples}')
-        audio_toggle = req.audio_toggle
         resolution = req.resolution
+        audio_toggle = req.audio_toggle
 
-        # print(f"wordType: {type(word.spelling)}")
-        image_file = generate_front_card(word, resolution)
-        print(f"이미지 생성 완료: {image_file}")
-        audio_file = generate_audio(word) if audio_toggle else None
-        print(f"오디오 생성 완료: {audio_file}")
-        zip_file = create_zip(word, image_file, audio_file)
+        loop = asyncio.get_running_loop()
+
+        # 병렬 실행
+        tasks = [loop.run_in_executor(executor, generate_image, word, resolution)]
+        if audio_toggle:
+            tasks.append(loop.run_in_executor(executor, generate_audio, word))
+
+        results = await asyncio.gather(*tasks)
+
+        image_files = results[0]
+        audio_file = results[1] if audio_toggle else None
+
+        # ZIP 파일 생성 (동기 처리)
+        zip_file = create_zip(word, image_files, audio_file)
 
         return StreamingResponse(
             iter([zip_file.getvalue()]),
             media_type="application/zip",
-            headers={"Content-Disposition": f"attachment; filename={word.spelling}.zip"}
+            headers={
+                "Content-Disposition": f"attachment; filename={word.spelling}.zip"
+            }
         )
-
     except Exception as e:
-        print(f'generate_media: {str(e)}')
-        return JSONResponse(
-            status_code=500,
-            content={"error": str(e)}
-        )
-
-        # return {"error": str(e)}
+        return JSONResponse(status_code=500, content={"error": str(e)})
