@@ -1,1 +1,2 @@
-from .media_generator import router
+from .media_generator import media_router
+from .word_template_download import template_download_router

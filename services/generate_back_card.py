@@ -287,7 +287,7 @@ from fastapi import HTTPException
 from PIL import Image, ImageDraw, ImageFont
 
 from schemas import Word, Meaning, PartOfSpeech
-from core.config import FONT_FREESENTATION
+from core import FONT_FREESENTATION_DIR
 
 
 def generate_back_card(word: Word, scale: float, image_format='png'):
@@ -315,7 +315,7 @@ def generate_back_card(word: Word, scale: float, image_format='png'):
         content_height = height - (padding * 2)
 
         # 폰트 설정
-        FONT_PATH = os.path.join(FONT_FREESENTATION, "Freesentation-9Black.ttf")
+        FONT_PATH = os.path.join(FONT_FREESENTATION_DIR, "Freesentation-9Black.ttf")
 
         # 헤더 영역 높이 계산
         header_height = int(200 * scale)
@@ -367,7 +367,7 @@ def generate_back_card(word: Word, scale: float, image_format='png'):
         current_y = meanings_start_y
         meaning_font_size = int(42 * scale)
         # 단어 뜻용 폰트 (Freesentation-6SemiBold)
-        MEANING_FONT_PATH = os.path.join(FONT_FREESENTATION, "Freesentation-7Bold.ttf")
+        MEANING_FONT_PATH = os.path.join(FONT_FREESENTATION_DIR, "Freesentation-7Bold.ttf")
         meaning_font = ImageFont.truetype(MEANING_FONT_PATH, meaning_font_size)
         pos_font_size = int(28 * scale)
         pos_font = ImageFont.truetype(FONT_PATH, pos_font_size)

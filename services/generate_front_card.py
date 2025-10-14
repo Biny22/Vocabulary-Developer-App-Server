@@ -4,7 +4,7 @@ from fastapi import Form, HTTPException
 from PIL import Image, ImageDraw, ImageFont
 
 from schemas import Word
-from core.config import FONT_FREESENTATION
+from core import FONT_FREESENTATION_DIR
 
 
 def generate_front_card(word: Word, scale: float, image_format='png') -> BytesIO:
@@ -36,7 +36,7 @@ def generate_front_card(word: Word, scale: float, image_format='png') -> BytesIO
 
         # 메인 단어 폰트 크기 결정
         word_font_size = initial_font_size
-        FONT_PATH = os.path.join(FONT_FREESENTATION, "Freesentation-9Black.ttf")
+        FONT_PATH = os.path.join(FONT_FREESENTATION_DIR, "Freesentation-9Black.ttf")
         word_font = None
 
         while word_font_size >= min_font_size:

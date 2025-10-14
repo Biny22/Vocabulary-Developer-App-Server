@@ -15,6 +15,7 @@ class Word(BaseModel):
 
 class WordRequest(BaseModel):
     word: Word
+    db_toggle: bool = False
     audio_toggle: bool = False
     resolution: str
 

@@ -42,10 +42,10 @@ from schemas import Word, WordRequest
 #             content={"error": str(e)}
 #         )
 
-router = APIRouter()
+media_router = APIRouter()
 
 
-@router.post("/generate/media")
+@media_router.post("/generate/media")
 async def generate_media(req: WordRequest):
     try:
         word = req.word
